@@ -1,0 +1,689 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Denoising Diffusion Model &#8212; My sample book</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=3ee479438cf8b5e0d341" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=87e54e7c" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=3ee479438cf8b5e0d341"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'generative-models/04-denoising-diffusion';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Score-based Diffusion Model" href="05-score-based-diffusion.html" />
+    <link rel="prev" title="Variational Auto-Encoder" href="03-variational-autoencoder.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="../introduction.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.png" class="logo__image only-light" alt="My sample book - Home"/>
+    <script>document.write(`<img src="../_static/logo.png" class="logo__image only-dark" alt="My sample book - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../introduction.html">
+                    A Journey of Generative Model
+                </a>
+            </li>
+        </ul>
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Part I</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01-normal-distribution.html">Normal Distribution</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02-mixture-gaussian.html">Latent Variable Model</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part II</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="03-variational-autoencoder.html">Variational Auto-Encoder</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Part III</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Denoising Diffusion Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05-score-based-diffusion.html">Score-based Diffusion Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06-stable-diffusion.html">Stable Diffusion</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/executablebooks/jupyter-book/issues/new?title=Issue%20on%20page%20%2Fgenerative-models/04-denoising-diffusion.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/generative-models/04-denoising-diffusion.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Denoising Diffusion Model</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#diffusion-process">Diffusion Process</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#denoising-phase">Denoising Phase</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters-estimation">Parameters Estimation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#noise-prediction">Noise Prediction</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-new-data">Generating New Data</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="denoising-diffusion-model">
+<h1>Denoising Diffusion Model<a class="headerlink" href="#denoising-diffusion-model" title="Link to this heading">#</a></h1>
+<p>The diffusion model is also a kind of latent variable model. It can also considered as a revolutionary version of the hierarchy VAE. However, with only the following changes in the hierarchy VAE, the diffusion model can be easily implemented but with surprisingly generative performance.</p>
+<ol class="arabic simple">
+<li><p><strong>Latent and Observed variables have the same number of dimensions.</strong></p></li>
+<li><p><strong>The encoder is just a (Gaussian) noise-adding module, where the noise is generated from a fixed normal distribution.</strong></p></li>
+</ol>
+<p><img alt="Figure 9" src="../_images/part3-denoising-diffusion.png" /></p>
+<p>The basic idea of the diffusion model is to learn the distribution of observed data from the <em><strong>denoising process</strong></em>. The diffusion model’s two primary phases are <em><strong>diffusion</strong></em> and <em><strong>denoising</strong></em>.</p>
+<ul class="simple">
+<li><p>In the diffusion process, the observed data is corrupted by repeatedly adding noise generated from a fixed normal distribution until it becomes a completely random noise.</p></li>
+<li><p>Then, in the denoising process, a neural network learns to predict the noise added to the data, and with the denoising process, the data is restored (generated).</p></li>
+</ul>
+<section id="diffusion-process">
+<h2>Diffusion Process<a class="headerlink" href="#diffusion-process" title="Link to this heading">#</a></h2>
+<p><img alt="Diffusion" src="../_images/part3-diffusion.png" /></p>
+<p>In the diffusion process, noise is gradually added to the data from the previous time. The noise addition should be set so that at the final time the data is destroyed as latent variables. In general, the latent variable at the final step is assumed to follow a fixed normal distribution such as <span class="math notranslate nohighlight">\(\mathcal{N}(x_T;0,\text{I})\)</span>. This is similar to the assumption in VAE where the latent variable is generated from a normal distribution.</p>
+<p>The modeling of the diffusion process at each time step <span class="math notranslate nohighlight">\(1\leq t \leq T\)</span> is represented as follows.</p>
+<div class="math notranslate nohighlight">
+\[
+q(x_t|x_{t-1}) = \mathcal{N}(x_t;\sqrt{1-\beta_t}x_{t-1}, \beta_t\text{I})
+\]</div>
+<p>If <span class="math notranslate nohighlight">\(\beta_t\)</span> is set to a small value such as 0.001 and <span class="math notranslate nohighlight">\(T\)</span> is set sufficiently large, the distribution of <span class="math notranslate nohighlight">\(x_t\)</span> can be made close to a normal distribution.</p>
+<p>In fact, <span class="math notranslate nohighlight">\(x_t\)</span> can be obtained using the following variable transformation trick.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\epsilon\sim\mathcal{N}(\epsilon;0,\text{I})\\x_t = \sqrt{1-\beta_t}x_{t-1}+\sqrt{\beta_t}\epsilon\end{split}\]</div>
+</section>
+<section id="denoising-phase">
+<h2>Denoising Phase<a class="headerlink" href="#denoising-phase" title="Link to this heading">#</a></h2>
+<p>In the denoising process, a neural network is used. In the diffusion model, all latent and observed variables have the same number of dimensions, so a common neural network can be used for denoising at each time point. Denoising can be modeled as follows.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\hat{x}_{t-1} = \text{NeuralNetwork}(x_t,t;\theta)\\p_\theta(x_{t-1}|x_t) =\mathcal{N}(x_{t-1};\hat{x}_{t-1},\text{I})\end{split}\]</div>
+</section>
+<section id="parameters-estimation">
+<h2>Parameters Estimation<a class="headerlink" href="#parameters-estimation" title="Link to this heading">#</a></h2>
+<p>Parameters estimation in a diffusion model is also performed by maximizing the log-likelihood function. In the diffusion model, the parameters are those of the neural network used in the denoising process. However, since it is difficult to compute the log-likelihood of a diffusion model, similar to the VAE, ELBO is used.</p>
+<p>First, let’s calculate the ELBO of the diffusion model.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}\text{ELBO}(x_0;\theta) &amp;= \int q(x_{1:T}|x_0)\log\frac{p_{\theta}(x_{0:T})}{q(x_{1:T}|x_0)}dx_{1:T} \\
+&amp;=  \mathbb{E}_{q(x_{1:T}|x_0)}\left[\log\frac{p_{\theta}(x_{0:T})}{q(x_{1:T}|x_0)}\right] \\&amp;= \mathbb{E}_{q(x_{1:T}|x_0)}\left[\log\frac{p(x_{T})\prod_{t=1}^{T}{p_{\theta}(x_{t-1}|x_t)}}{\prod_{t=1}^{T}{q(x_{t}|x_t-1)}}\right] \\&amp;= \mathbb{E}_{q(x_{1:T}|x_0)}\left[\log{\prod_{t=1}^{T}{p_{\theta}(x_{t-1}|x_t)}} + \log{\frac{p(x_T)}{\prod_{t=1}^{T}{q(x_{t}|x_t-1)}}}\right]\end{align*}\end{split}\]</div>
+<p>Here, since the last time step data is a complete noise which follow a normal distribution, <span class="math notranslate nohighlight">\(p(x_T) \)</span> is not a function of <span class="math notranslate nohighlight">\(\theta\)</span>. Therefore, maximizing ELBO is equivalent to maximizing the following function.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}    J(\theta) &amp;= \mathbb{E}_{q(x_{1:T}|x_0)}\left[\log{\prod_{t=1}^{T}{p_{\theta}(x_{t-1}|x_t)}} \right] \\    &amp;= \mathbb{E}_{q(x_{1:T}|x_0)}\left[{\sum_{t=1}^{T}\log{p_{\theta}(x_{t-1}|x_t)}} \right] \\    &amp;= \sum_{t=1}^{T}\mathbb{E}_{q(x_{1:T}|x_0)}\left[{\log{p_{\theta}(x_{t-1}|x_t)}} \right] \\    &amp;= \sum_{t=1}^{T}\mathbb{E}_{q(x_{t-1}, x_t|x_0)}\left[{\log{p_{\theta}(x_{t-1}|x_t)}} \right] \\    \end{align*}\end{split}\]</div>
+<p><span class="math notranslate nohighlight">\(\mathbb{E}_{q(x_{t-1}, x_t|x_0)}[\cdot]\)</span> can be approximated with Monte Carlo method and together with the modeling of denoising process, this function can be further approximated as follows.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+J(\theta) &amp;\approx \sum_{t=1}^{T}\log p_\theta(x_{t-1}|x_t) \\ \\    
+\hat{x}_{t-1} &amp;= \text{NeuralNet}(x_t,t;\theta) \\    p_\theta(x_{t-1}|x_t) &amp;= \mathcal{N}(x_{t-1};\hat{x}_{t-1},\mathbf{I})\\ \\    J(\theta) &amp;\approx -\frac{1}{2}\sum_{t=1}^{T}||x_{t-1}-\hat{x}_{t-1}||^2    \end{align*}\end{split}\]</div>
+<p><img alt="Estimate Latent Variable" src="../_images/part3-diffusion-est-latent.png" /></p>
+<p>Maximizing this <span class="math notranslate nohighlight">\(J(\theta)\)</span> is equivalent to minimizing loss between <span class="math notranslate nohighlight">\(x_{t-1}\)</span> and denoised <span class="math notranslate nohighlight">\(\hat{x}_{t-1}\)</span>. This means we train the neural network to conduct the denoising process given time step <span class="math notranslate nohighlight">\(t\)</span> and corresponding data <span class="math notranslate nohighlight">\(x_t \)</span> as inputs. However, as you may have noticed, each time of <span class="math notranslate nohighlight">\(J(\theta)\)</span> calculation, we need to do <span class="math notranslate nohighlight">\(T\)</span> times diffusion process sampling. This leads to high computational cost when we have large value of <span class="math notranslate nohighlight">\(T\)</span> set. To make the process more efficient, another method of approximation method can be considered by using only one sampling of the diffusion process.</p>
+<section id="noise-prediction">
+<h3>Noise Prediction<a class="headerlink" href="#noise-prediction" title="Link to this heading">#</a></h3>
+<p>The idea of this method is to train the neural network in denoising process to predict the noise <span class="math notranslate nohighlight">\(\hat\epsilon\)</span>added to the data, instead of predicting the data <span class="math notranslate nohighlight">\(\hat{x}_{t-1}\)</span>.</p>
+<p><img alt="noise prediction" src="../_images/part3-diffusion-est-noise.png" /></p>
+<p>We will mathematical show that training the neural network to predict the noise is equivalent to the previous approximation with <span class="math notranslate nohighlight">\(T\)</span> times samplings in the previous section.</p>
+<p>Note that the distribution <span class="math notranslate nohighlight">\(p_\theta(x_{t-1}|x_t)\)</span>  can be modeled as</p>
+<div class="math notranslate nohighlight">
+\[\begin{align*}
+p_\theta(x_{t-1}|x_t)  &amp;= \mathcal{N}(x_{t-1};\mu_\theta(x_t,t),\sigma_{q}^2(t)\text{I})
+\end{align*}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{align*}
+\mu_\theta(x_t,t) &amp;= \text{NeuralNetwork}(x_t, t)
+\end{align*}\]</div>
+<p>Let’s start from the modeling of the diffusion process.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+q(x_t|x_{t-1}) &amp;= \mathcal{N}(x_t;\sqrt{{\alpha}_t}x_{t-1},(1-\alpha_t)\text{I}) ~~~,\text{where}~\alpha_t = 1-\beta_t \\
+q(x_t|x_0) &amp;= \mathcal{N}(x_t;\sqrt{\bar{\alpha}_t}x_0,(1-\bar\alpha_t)\text{I}) ~~~,\text{where}~\bar\alpha_t = \prod_{t=1}^{T}(1-\beta_t) \\
+\end{align*}\end{split}\]</div>
+<p>Thus, <span class="math notranslate nohighlight">\(x_t\)</span> can be sampled as follows.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\epsilon &amp;\sim \mathcal{N}(0, \text{I}) \\
+x_t &amp;= \sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon 
+\end{align*}\end{split}\]</div>
+<p>Now, we can express the original observed data <span class="math notranslate nohighlight">\(x_0\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[\begin{align*}
+x_0 &amp;= \frac{x_t-\sqrt{1-\bar\alpha_t}\epsilon}{\sqrt{\bar\alpha_t}}  
+\end{align*}\]</div>
+<p>Given <span class="math notranslate nohighlight">\(x_0\)</span> and <span class="math notranslate nohighlight">\(x_t\)</span>, the distribution of <span class="math notranslate nohighlight">\(x_{t-1}\)</span> can be obtained as follows.</p>
+<div class="math notranslate nohighlight">
+\[\begin{align*}
+q(x_{t-1}|x_t,x_0) &amp;= \frac{q(x_t|x_{t-1},x_0)q(x_{t-1}|x_0)}{q(x_t|x_0)}
+\end{align*}\]</div>
+<p>With Markov assumption, <span class="math notranslate nohighlight">\(q(x_t|x_{t-1},x_0) = q(x_t|x_{t-1})\)</span></p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+q(x_{t-1}|x_t,x_0) &amp;= \frac{q(x_t|x_{t-1})q(x_{t-1}|x_0)}{q(x_t|x_0)} \\
+&amp;=\frac{\mathcal{N}(x_t;\sqrt{{\alpha}_t}x_{t-1},(1-\alpha_t)\text{I}) ~ \mathcal{N}(x_{t-1};\sqrt{\bar{\alpha}_{t-1}}x_0,(1-\bar\alpha_{t-1})\text{I}) }{\mathcal{N}(x_t;\sqrt{\bar{\alpha}_t}x_0,(1-\bar\alpha_t)\text{I}) }
+\end{align*}\end{split}\]</div>
+<p>By expanding the right side of this equation, we obtain the following distribution.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+q(x_{t-1}|x_t,x_0) &amp;= \mathcal{N}\left(x_{t-1}; \mu_q(x_t,x_0), \sigma_q^2(t)\text{I}\right) \\
+\mu_q(x_t,x_0) &amp;= \frac{1}{\sqrt{\alpha_t}}\left(x_t - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon\right) \\
+\sigma_q^2(t) &amp;= \frac{(1-\alpha_t)(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}
+\end{align*}\end{split}\]</div>
+<p>Here, let’s rewrite <span class="math notranslate nohighlight">\(\mu_\theta(x_t,t)\)</span> to match the form of <span class="math notranslate nohighlight">\(\mu_q(x_t,x_0)\)</span> as</p>
+<div class="math notranslate nohighlight">
+\[\begin{align*}
+\mu_\theta(x_t,t) &amp;= \frac{1}{\sqrt{\alpha_t}}\left(x_t - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(x_t, t)\right)
+\end{align*}\]</div>
+<p>, where now we set the output of the neural network to <span class="math notranslate nohighlight">\(\epsilon_\theta(x_t, t)\)</span> instead.</p>
+<p>Now, let’s look back to the KL divergence between the two normal distributions <span class="math notranslate nohighlight">\(q(x_{t-1}|x_t,x_0)\)</span> and <span class="math notranslate nohighlight">\(p_\theta(x_{t-1}|x_t)= \mathcal{N}(x_{t-1};\hat{x}_{t-1},\mathbf{I})\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+D_{\text{KL}}(q(x_{t-1}|x_t,x_0)\|p_\theta(x_{t-1}|x_t)) &amp;= \frac{1}{2\sigma_q^2(t)}\|\mu_\theta(x_t,t) - \mu_q(x_t,x_0)\|^2 \\
+&amp;= \frac{1}{2\sigma_q^2(t)}\|\epsilon_\theta(x_t,t) - \epsilon\|^2
+\end{align*}\end{split}\]</div>
+<p>This shows that by train the neural network to predict the noise, which is minimizing the above KL divergence, lead to maximizing the EBOL of the diffusion model. Thus, this optimization is equivalent to the parameter estimation with <span class="math notranslate nohighlight">\(T\)</span> times sampling in the previous section.</p>
+<p>To sum up, the training algorithm of the diffusion model is as follows.</p>
+<p>Repeat the following steps</p>
+<p>Repeat the following steps:</p>
+<ol class="arabic simple">
+<li><p>Randomly sample a training data instance</p></li>
+<li><p>Sample a time step <span class="math notranslate nohighlight">\(t\)</span> from a uniform distribution : <span class="math notranslate nohighlight">\(t \sim U[1,T]\)</span></p></li>
+<li><p>Generate Gaussian noise for diffusion process: <span class="math notranslate nohighlight">\(\epsilon \sim \mathcal{N}(0,\text{I})\)</span></p></li>
+<li><p>Diffusion process: <span class="math notranslate nohighlight">\(x_t = \sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\epsilon\)</span></p></li>
+<li><p>Calculate loss: <span class="math notranslate nohighlight">\(\text{Loss}(x_0, \theta) = \|\epsilon_\theta(x_t,t)-\epsilon\|^2\)</span></p></li>
+<li><p>Update parameters <span class="math notranslate nohighlight">\(\theta\)</span> with gradient decent</p></li>
+</ol>
+</section>
+</section>
+<section id="generating-new-data">
+<h2>Generating New Data<a class="headerlink" href="#generating-new-data" title="Link to this heading">#</a></h2>
+<p>As shown in previous sections, the denoising process is modeled as follows.</p>
+<div class="math notranslate nohighlight">
+\[p_\theta(x_{t-1}|x_t) = \mathcal{N}(x_{t-1};\mu_\theta(x_t,t),\sigma_q^2(t)\text{I})\]</div>
+<p>Using the following trick, we can sample every time step data with the following process.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\epsilon &amp;\sim \mathcal{N}(0, I) \\
+x_{t-1} &amp;= \mu_\theta(x_t,t)+\sigma_q(t)\epsilon
+\end{align*}\end{split}\]</div>
+<p>Here,</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\mu_\theta(x_t,t) &amp;= \frac{1}{\sqrt{\alpha_t}}\left(x_t - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(x_t, t)\right) \\
+\sigma_q(t)&amp;=\sqrt{\frac{(1-\alpha_t)(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}}
+\end{align*}\end{split}\]</div>
+<p>. Thus, the process of new data generation can be summarized as follows.</p>
+<p><strong>Generation Process</strong></p>
+<p><span class="math notranslate nohighlight">\(x_T \sim \mathcal{N}(0,\text{I})\)</span></p>
+<p>for <span class="math notranslate nohighlight">\(t\)</span> in <span class="math notranslate nohighlight">\([T,...,1]\)</span>:</p>
+<p><span class="math notranslate nohighlight">\(\epsilon\sim\mathcal{N}(0,\text{I})\)</span></p>
+<p>if <span class="math notranslate nohighlight">\(t=1\)</span> then <span class="math notranslate nohighlight">\(\epsilon=0\)</span></p>
+<p><span class="math notranslate nohighlight">\(\sigma_q(t)=\sqrt{\frac{(1-\alpha_t)(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}}\)</span></p>
+<p><span class="math notranslate nohighlight">\(x_{t-1} = \frac{1}{\sqrt{\alpha_t}}\left(x_t - \frac{1-\alpha_t}{\sqrt{1-\bar\alpha_t}}\epsilon_\theta(x_t, t)\right) +\sigma_q(t)\epsilon\)</span></p>
+<p>return <span class="math notranslate nohighlight">\(x_0\)</span></p>
+<p><img alt="diffusion generated" src="../_images/part3-diffusion-generated.png" /></p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./generative-models"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="03-variational-autoencoder.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Variational Auto-Encoder</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="05-score-based-diffusion.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Score-based Diffusion Model</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#diffusion-process">Diffusion Process</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#denoising-phase">Denoising Phase</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#parameters-estimation">Parameters Estimation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#noise-prediction">Noise Prediction</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-new-data">Generating New Data</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book Community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=3ee479438cf8b5e0d341"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=3ee479438cf8b5e0d341"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
