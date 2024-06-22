@@ -6,10 +6,7 @@ on:
     branches:
     - master
     - main
-    # If your git repository has the Jupyter Book within some-subfolder next to
-    # unrelated files, you can make this run only if a file within that specific
-    # folder has been modified.
-    #
+    # To only run this workflow when specific subdirectories change:
     # paths:
     # - some-subfolder/**
 
@@ -23,27 +20,31 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    # Install dependencies
+    # Set up Python and Poetry
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: 3.11
 
+    - name: Install Poetry
+      run: |
+        pip install poetry
+
+    # Install dependencies using Poetry
     - name: Install dependencies
       run: |
         poetry install
 
-    # (optional) Cache your executed notebooks between runs
-    # if you have config:
-    # execute:
-    #   execute_notebooks: cache
-    - name: cache executed notebooks
+    # Cache Poetry virtual environment (instead of _build/.jupyter_cache)
+    - name: Cache Poetry virtual environment
       uses: actions/cache@v3
       with:
-        path: _build/.jupyter_cache
-        key: jupyter-book-cache-${{ hashFiles('requirements.txt') }}
+        path: |
+          ~/.cache/pypoetry
+          ~/.cache/pip
+        key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
 
-    # Build the book
+    # Build the book using Poetry
     - name: Build the book
       run: |
         poetry run jupyter-book build .
