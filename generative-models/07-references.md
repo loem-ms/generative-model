@@ -1,7 +1,7 @@
 # References
 
 ## Books:
-* Deep Learning from Scratch 5 - Generative Model ゼロから作るDeep Learning❺ 生成モデル編 (Saitoh 2024)
+* Deep Learning from Scratch 5 - Generative Model ゼロから作るDeep Learning❺ 生成モデル編 (Saitoh, 2024)
 * Diffusion Models Mathematics of Data Generation Techniques 拡散モデル データ生成技術の数理 (Okanohara, 2023)
 * Deep Learning (Goodfellow, Bengio, and Courville, 2016)
 
