@@ -18,5 +18,5 @@ parts:
   - caption: Part III
     chapters:
       - file: generative-models/04-denoising-diffusion
-      - file: generative-models/05-score-based-diffusion
+      - file: generative-models/05-implement-diffusion-model
       - file: generative-models/06-stable-diffusion
